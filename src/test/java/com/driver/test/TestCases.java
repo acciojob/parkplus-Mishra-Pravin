@@ -28,5 +28,39 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class TestCases {
+    @Mock
+    UserRepository userRepository;
+    @Mock
+    SpotRepository spotRepository;
+    @Mock
+    ReservationRepository reservationRepository;
+    @Mock
+    ParkingLotRepository parkingLotRepository;
+
+    @InjectMocks
+    ReservationServiceImpl reservationService;
+
+    @Test
+    public void testReserveSpot() throws Exception {
+        // Arrange
+        User user = new User();
+        user.setId(1);
+        ParkingLot parkingLot = new ParkingLot();
+        parkingLot.setId(1);
+        Spot spot = new Spot();
+        spot.setId(1);
+        spot.setParkingLot(parkingLot);
+        when(userRepository.findById(1)).thenReturn(user);
+        when(parkingLotRepository.findById(1)).thenReturn(parkingLot);
+        when(spotRepository.findFirstByParkingLotAndNumberOfWheelsGreaterThanEqualOrderByPricePerHourAsc(parkingLot, 4)).thenReturn(spot);
+
+        // Act
+        Reservation reservation = reservationService.reserveSpot(1, 1, 2, 4);
+
+        // Assert
+        assertNotNull(reservation);
+        assertEquals(user, reservation.getUser());
+        assertEquals(spot, reservation.getSpot());
+    }
 }
 
